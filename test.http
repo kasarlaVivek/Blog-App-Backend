@@ -1,0 +1,135 @@
+###user register 
+POST http://127.0.0.1:3000/user-api/users
+Content-Type: application/json
+
+{
+    "firstName":"hand",
+    "lastName":"Sharma",
+    "email":"hd2@gmail.com",
+    "password":"hhand@123",
+    "role": "USER", 
+    "profileImageUrl":"https://www.istockphoto.com/photos/for-example"
+}
+
+
+
+###get articles data
+GET http://127.0.0.1:3000/user-api/articles
+
+###read article by id
+GET http://127.0.0.1:3000/user-api/articles/69897784fe429bbaa7d59f6e
+
+
+###add comment to articles
+PUT http://127.0.0.1:3000/user-api/article/69897776fe429bbaa7d59f69
+Content-Type: application/json
+
+{
+    "comment":"good article"
+}
+
+
+###author register 
+POST http://127.0.0.1:3000/author-api/users
+Content-Type: application/json
+
+{
+    "firstName":"vikanth",
+    "lastName":"authore",
+    "email":"tomyshel@gmail.com",
+    "password":"user@1234",
+    "role": "AUTHOR", 
+    "profileImageUrl":"https://www.istockphoto.com/photos/for-example"
+}
+
+
+
+
+###create article by author
+POST http://127.0.0.1:3000/author-api/create-articles
+Content-Type: application/json
+
+{
+    "title":"test4-article",
+    "category":"programming",
+    "content":"content of article-3"
+}
+
+
+###read all the articles of a author
+GET http://127.0.0.1:3000/author-api/articles
+
+
+###update article by author
+PUT 69ae8c8d61cedaadf5544984
+Content-Type: application/json
+
+{
+    "title":"test4 article",
+    "category":"programming",
+    "content":"content of article-4"
+}
+
+###delete (soft-delete) an article
+PATCH  http://127.0.0.1:3000/author-api/article/69ae8ed6c6715293e9c6fc0d
+
+
+
+
+### authenticate user
+POST http://127.0.0.1:3000/common-api/login
+Content-Type: application/json
+
+{
+    "email":"hhd@gmail.com",
+    "password":"hhand@123"
+}
+
+
+
+### authenticate author
+POST http://127.0.0.1:3000/common-api/login
+Content-Type: application/json
+
+{
+    "email":"vikanthauthor@gmail.com",
+    "password":"user@1234"
+}
+
+
+### authenticate admin
+POST http://127.0.0.1:3000/common-api/login
+Content-Type: application/json
+
+{
+    "email":"admin@gmail.com",
+    "password":"admin"
+}
+
+
+
+###logout
+GET  http://127.0.0.1:3000/common-api/logout
+
+###update password 
+PUT http://127.0.0.1:3000/common-api/user-password/698acd6171916b51c9a620ae
+Content-Type: application/json
+
+{
+    "oldPassword":"anurag@123",
+    "newPassword":"hhand@123"
+}
+
+
+###test req to path
+GET http://127.0.0.1:3000/test
+
+
+-------------------------------------------------------------------------------------------------------------
+
+###block users by admin
+PUT http://127.0.0.1:3000/admin-api/user-block/6989659182225c1c4f3ec05f
+
+
+###unblock users by admin
+PUT http://127.0.0.1:3000/admin-api/user-unblock/6989659182225c1c4f3ec05f
