@@ -69,7 +69,7 @@ app.use((req, res, next) => {
 // error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error name:", err.name);
-  console.error("Error code:", err.code);
+  console.error("Error code:", err.code ?? err.cause?.code);
   console.error("Full error:", err);
 
   // mongoose validation error
@@ -88,13 +88,24 @@ app.use((err, req, res, next) => {
     });
   }
 
-  // MongoDB duplicate key error
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    const value = err.keyValue[field];
+  // MongoDB duplicate key error (Mongoose v9 wraps it in err.cause)
+  const errCode = err.code ?? err.cause?.code;
+  const keyValue = err.keyValue ?? err.cause?.keyValue;
+
+  if (errCode === 11000 && keyValue) {
+    const field = Object.keys(keyValue)[0];
+    const value = keyValue[field];
     return res.status(409).json({
       message: "Conflict detected",
       error: `${field} "${value}" already exists`,
+    });
+  }
+
+  // Mongoose v9 MongooseError wrapping duplicate key (fallback)
+  if (err.name === "MongooseError" && err.message) {
+    return res.status(409).json({
+      message: "Conflict detected",
+      error: err.message,
     });
   }
 

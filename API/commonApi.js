@@ -16,8 +16,8 @@ commonApp.post("/login",async(req,res)=>{
     // save token as httpOnly
     res.cookie("token", token, {
         httpOnly: true,
-        sameSite: "lax",
-        secure: false
+        sameSite: "none",
+        secure: true
         })
     // send res
     res.status(201).json({ message: "user login success" , payload:user})
@@ -35,8 +35,8 @@ commonApp.get("/check-auth",verifyToken("USER","AUTHOR","ADMIN"),async(req,res)=
 commonApp.get("/logout",async(req,res)=> {
     res.clearCookie("token",{
         httpOnly:true,
-        secure:false,
-        sameSite:"lax"
+        secure:true,
+        sameSite:"none"
     });
     res.status(200).json({message:"logout successful"});
 })
