@@ -3,8 +3,21 @@ import {register,authentication} from "../Services/authService.js"
 import { userTypeModel } from "../Models/userModel.js";
 import bcrypt ,{ compare,hash } from "bcryptjs";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import { articleModel } from "../Models/articleModel.js";
 
 export const commonApp = exp.Router();
+
+// get all active articles (public)
+commonApp.get("/articles", async (req, res) => {
+    try {
+        let articlesData = await articleModel.find({ isArticleActive: true })
+            .populate("author", "firstName lastName profileImageUrl email")
+            .sort({ createdAt: -1 }); // Latest first
+        res.status(200).json({ message: "articles retrieved", payload: articlesData });
+    } catch (err) {
+        res.status(500).json({ message: "error occurred", error: err.message });
+    }
+});
 
 
 // login

@@ -64,6 +64,16 @@ authorApp.get("/articles", verifyToken("AUTHOR"), async (req, res) => {
     res.status(201).json({ message: "articles retrived", payload: articles })
 })
 
+// read article by id(protected)
+authorApp.get("/articles/:articleId", verifyToken("AUTHOR"), async (req, res) => {
+    let articleId = req.params.articleId;
+    let articleDoc = await articleModel.findById(articleId).populate("author", "firstName email");
+    if (!articleDoc) {
+        return res.status(404).json({ message: "article not found" });
+    }
+    res.status(201).json({ message: "article found", payload: articleDoc });
+})
+
 // edit article(protected)
 authorApp.put("/articles/:articleId", verifyToken("AUTHOR"), async (req, res) => {
     let {  title, category, content } = req.body;

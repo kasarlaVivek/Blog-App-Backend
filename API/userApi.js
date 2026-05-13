@@ -45,7 +45,7 @@ userApp.get('/articles/:articleId', async (req, res) => {
   let articleId = req.params.articleId;
   let articleDoc = await articleModel.findOne({ _id: articleId, isArticleActive: true }).populate("author", "firstName email");
   if (!articleDoc) {
-    return res.status(401).json({ message: "article not found" });
+    return res.status(404).json({ message: "article not found" });
   }
   return res.status(201).json({ message: "article  found", payload: articleDoc });
 })
