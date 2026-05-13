@@ -4,19 +4,42 @@ import { userTypeModel } from "../Models/userModel.js";
 import { articleModel } from "../Models/articleModel.js";
 import { checkAuthor } from "../middlewares/checkAuthor.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import { uploadToCloudinary } from "../config/cloudinaryUpload.js";
+import { upload } from "../config/multer.js";
+import cloudinary from "../config/cloudinary.js";
 
 
 export const authorApp = exp.Router();
 
 // register author(public)
-authorApp.post("/users", async (req, res) => {
-    // get user obj from req
-    let userObj = req.body;
-    // call register func
-    const newUserObj = await register({ ...userObj,role:"AUTHOR"});
-    // send res
-    res.status(201).json({ message: "User created", payload: newUserObj });
-})
+authorApp.post("/users", upload.single("profileImgUrl"),
+  async (req, res, next) => {
+    let cloudinaryResult;
+    try {
+      let userObj = req.body;
+      //  Step 1: upload image to cloudinary from memoryStorage (if exists)
+      if (req.file) {
+        cloudinaryResult = await uploadToCloudinary(req.file.buffer);
+      }
+      // Step 2: call existing register()
+      const newUserObj = await register({
+        ...userObj,
+        role: "AUTHOR",
+        profileImageUrl: cloudinaryResult?.secure_url,
+      });
+      res.status(201).json({
+        message: "User created",
+        payload: newUserObj,
+      });
+    } catch (err) {
+      // Step 3: rollback
+      if (cloudinaryResult?.public_id) {
+        await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+      }
+      next(err); // send to your error middleware
+    }
+  }
+);
 
 // create article(protected)
 authorApp.post("/create-articles", verifyToken("AUTHOR"), async (req, res) => {
