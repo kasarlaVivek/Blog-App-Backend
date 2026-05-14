@@ -54,6 +54,11 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// root endpoint
+app.get("/", (req, res) => {
+  res.send({ message: "Welcome to the Blog App API" });
+});
+
 
 // connect API's
 app.use("/user-api", userApp);
