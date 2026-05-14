@@ -20,26 +20,34 @@ app.set("trust proxy", 1);
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "https://blog-app-frontend-beta-eight.vercel.app"
 ];
+
 if (process.env.FRONTEND_URL) {
-  // support comma-separated URLs if needed (e.g. "https://myapp.vercel.app,https://custom-domain.com")
-  process.env.FRONTEND_URL.split(",").forEach((url) =>
-    allowedOrigins.push(url.trim())
-  );
+  process.env.FRONTEND_URL.split(",").forEach((url) => {
+    const trimmedUrl = url.trim();
+    if (trimmedUrl && !allowedOrigins.includes(trimmedUrl)) {
+      allowedOrigins.push(trimmedUrl);
+    }
+  });
 }
 
 // use cors for frontend and backend interaction
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (mobile apps, curl, server-to-server)
+      // allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
+      
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
+      } else {
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        return callback(new Error("Not allowed by CORS"));
       }
-      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
   })
 );
 
