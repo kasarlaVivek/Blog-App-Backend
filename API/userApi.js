@@ -43,7 +43,7 @@ userApp.post("/users", upload.single("profileImgUrl"),
 // read article by id
 userApp.get('/articles/:articleId', async (req, res) => {
   let articleId = req.params.articleId;
-  let articleDoc = await articleModel.findOne({ _id: articleId, isArticleActive: true }).populate("author", "firstName email");
+  let articleDoc = await articleModel.findOne({ _id: articleId, isArticleActive: true }).populate("author", "firstName email profileImageUrl");
   if (!articleDoc) {
     return res.status(404).json({ message: "article not found" });
   }
@@ -53,7 +53,7 @@ userApp.get('/articles/:articleId', async (req, res) => {
 
 // read all articles(protected)
 userApp.get("/articles", verifyToken("USER"), async (req, res) => {
-  let articlesData = await articleModel.find({ isArticleActive: true }).populate("comments.user", "firstName email");
+  let articlesData = await articleModel.find({ isArticleActive: true }).populate("author", "firstName lastName profileImageUrl email").populate("comments.user", "firstName email");
   if (!articlesData) {
     return res.status(401).json({ message: "articles not found" });
   }
@@ -83,7 +83,7 @@ userApp.put("/article/:articleId", verifyToken("USER"), async (req, res) => {
     articleId,
     { $push: { comments: newComment } },
     { new: true, runValidators: true }
-  ).populate("comments.user","firstName email");
+  ).populate("comments.user","firstName email profileImageUrl").populate("author", "firstName email profileImageUrl");
   res.status(201).json({ message: "Comment added successfully", payload: modifiedArticle });
 }
 );

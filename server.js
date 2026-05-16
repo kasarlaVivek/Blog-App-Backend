@@ -25,12 +25,15 @@ const allowedOrigins = [
 
 if (process.env.FRONTEND_URL) {
   process.env.FRONTEND_URL.split(",").forEach((url) => {
-    const trimmedUrl = url.trim();
+    const trimmedUrl = url.trim().replace(/\/$/, ""); // Remove trailing slash
     if (trimmedUrl && !allowedOrigins.includes(trimmedUrl)) {
       allowedOrigins.push(trimmedUrl);
     }
   });
 }
+
+// Normalize all default origins too
+const normalizedAllowedOrigins = allowedOrigins.map(url => url.replace(/\/$/, ""));
 
 // use cors for frontend and backend interaction
 app.use(
@@ -39,15 +42,20 @@ app.use(
       // allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      if (normalizedAllowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       } else {
         console.warn(`CORS blocked request from origin: ${origin}`);
-        return callback(new Error("Not allowed by CORS"));
+        // Instead of returning an error which might skip header setting, 
+        // we return null, false which tells CORS middleware to not allow it
+        return callback(null, false);
       }
     },
     credentials: true,
-    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    optionsSuccessStatus: 200
   })
 );
 

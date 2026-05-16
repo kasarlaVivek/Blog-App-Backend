@@ -59,7 +59,7 @@ authorApp.get("/articles", verifyToken("AUTHOR"), async (req, res) => {
     // get author id
     let authorId = req.user.userId;
     // retreive articles of author which are active
-    let articles = await articleModel.find({ author: authorId}).populate("author", "firstName email");
+    let articles = await articleModel.find({ author: authorId}).populate("author", "firstName email profileImageUrl");
     // send res
     res.status(201).json({ message: "articles retrived", payload: articles })
 })
@@ -67,7 +67,7 @@ authorApp.get("/articles", verifyToken("AUTHOR"), async (req, res) => {
 // read article by id(protected)
 authorApp.get("/articles/:articleId", verifyToken("AUTHOR"), async (req, res) => {
     let articleId = req.params.articleId;
-    let articleDoc = await articleModel.findById(articleId).populate("author", "firstName email");
+    let articleDoc = await articleModel.findById(articleId).populate("author", "firstName email profileImageUrl");
     if (!articleDoc) {
         return res.status(404).json({ message: "article not found" });
     }
@@ -93,7 +93,7 @@ authorApp.patch("/articles/:id/status", verifyToken("AUTHOR"), async (req, res) 
   const { id } = req.params;
   const { isArticleActive } = req.body;
   // Find article
-  const article = await articleModel.findById(id); //.populate("author");
+  const article = await articleModel.findById(id).populate("author", "firstName email profileImageUrl");
   console.log(article);
   if (!article) {
     return res.status(404).json({ message: "Article not found" });
